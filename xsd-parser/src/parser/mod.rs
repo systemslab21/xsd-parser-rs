@@ -9,6 +9,7 @@ mod complex_type;
 pub mod constants;
 mod element;
 mod extension;
+mod group;
 mod import;
 mod list;
 mod node_parser;
