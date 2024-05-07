@@ -46,7 +46,7 @@ fn process_dir(input_path: &Path, output_path: &Path) -> anyhow::Result<()> {
         let path = entry?.path();
         if path.is_dir() {
             process_dir(&path, &output_path.join(path.file_name().unwrap()))?;
-        } else {
+        } else if path.extension().is_some_and(|ext| ext.to_ascii_lowercase() == "xsd") {
             let output_file_path = PathBuf::from(path.file_name().unwrap()).with_extension("rs");
             let output_file_path = output_path.join(output_file_path);
             process_single_file(&path, Some(&output_file_path))?;
@@ -68,10 +68,11 @@ fn process_single_file(input_path: &Path, output_path: Option<&Path>) -> anyhow:
     Ok(())
 }
 
-fn load_file(path: &Path) -> std::io::Result<String> {
+fn load_file(path: &Path) -> anyhow::Result<String> {
     let mut file = fs::File::open(path)?;
     let mut text = String::new();
-    file.read_to_string(&mut text)?;
+    file.read_to_string(&mut text)
+        .with_context(|| format!("failed to read XML file `{}` to string", path.display()))?;
     Ok(text)
 }
 
