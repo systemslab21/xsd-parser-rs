@@ -39,7 +39,8 @@ pub trait TupleStructGenerator {
     }
 
     fn macros(&self, _entity: &TupleStruct, _gen: &Generator) -> Cow<'static, str> {
-        "#[derive(Debug, PartialEq, Eq, Clone, Default, Serialize, Deserialize)]\n#[serde(transparent)]\n".into()
+        "#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]\n#[serde(transparent)]\n"
+            .into()
     }
 
     fn format_comment(&self, entity: &TupleStruct, gen: &Generator) -> String {
