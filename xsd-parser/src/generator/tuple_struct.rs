@@ -11,7 +11,7 @@ use crate::{
 pub trait TupleStructGenerator {
     fn generate(&self, entity: &TupleStruct, gen: &Generator) -> String {
         format!(
-            "{comment}{macros}pub struct {name} (pub {typename});\n{subtypes}\n{validation}\n",
+            "{comment}{macros}pub struct {name} (pub {typename});\n{validation}\n{subtypes}\n\n",
             comment = self.format_comment(entity, gen),
             name = self.get_name(entity, gen),
             macros = self.macros(entity, gen),
@@ -39,7 +39,7 @@ pub trait TupleStructGenerator {
     }
 
     fn macros(&self, _entity: &TupleStruct, _gen: &Generator) -> Cow<'static, str> {
-        "#[derive(Default, PartialEq, Debug, UtilsTupleIo, UtilsDefaultSerde)]\n".into()
+        "#[derive(Debug, PartialEq, Eq, Clone, Default, Serialize, Deserialize)]\n#[serde(transparent)]\n".into()
     }
 
     fn format_comment(&self, entity: &TupleStruct, gen: &Generator) -> String {

@@ -150,7 +150,7 @@ pub fn element_modifier(node: &Node) -> TypeModifier {
                 if val > 1 {
                     TypeModifier::Array
                 } else {
-                    TypeModifier::None
+                    TypeModifier::Option
                 }
             }
         },

@@ -55,6 +55,7 @@ pub fn parse_complex_type(node: &Node, parent: &Node) -> RsEntity {
         RsEntity::Struct(st) => {
             st.fields.borrow_mut().append(&mut fields);
             st.name = name.to_string();
+            st.attribute_groups.borrow_mut().append(&mut attribute_groups_to_aliases(node));
         }
         RsEntity::Enum(en) => {
             en.name = format!("{}Choice", name);

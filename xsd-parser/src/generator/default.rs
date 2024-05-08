@@ -54,50 +54,65 @@ pub fn default_modify_type(type_name: &str, modifiers: &[TypeModifier]) -> Cow<'
     }
 
     let mut result = type_name.to_string();
-    for modifier in modifiers {
-        match modifier {
-            TypeModifier::Array => result = format!("Vec<{}>", result),
-            TypeModifier::Option => result = format!("Option<{}>", result),
-            _ => (),
-        }
+    if modifiers.contains(&TypeModifier::Array) {
+        result = format!("Vec<{}>", result);
+    } else if modifiers.contains(&TypeModifier::Option) {
+        result = format!("Option<{}>", result);
     }
     result.into()
 }
 
-pub fn yaserde_for_attribute(name: &str, indent: &str) -> String {
-    if let Some(index) = name.find(':') {
+pub fn serde_for_attribute(name: &str, indent: &str, modifiers: &[TypeModifier]) -> String {
+    let (_prefix, field_name) = if let Some(index) = name.find(':') {
+        (Some(&name[0..index]), &name[index + 1..])
+    } else {
+        (None, name)
+    };
+
+    if modifiers.contains(&TypeModifier::Array) || modifiers.contains(&TypeModifier::Recursive) {
         format!(
-            "{}#[yaserde(attribute, prefix = \"{}\", rename = \"{}\")]\n",
-            indent,
-            &name[0..index],
-            &name[index + 1..]
+            "{}#[serde(rename = \"@{}\", default, skip_serializing_if = \"Vec::is_empty\")]\n",
+            indent, field_name
+        )
+    } else if modifiers.contains(&TypeModifier::Option) {
+        format!(
+            "{}#[serde(rename = \"@{}\", default, skip_serializing_if = \"Option::is_none\")]\n",
+            indent, field_name
         )
     } else {
-        format!("{}#[yaserde(attribute, rename = \"{}\")]\n", indent, name)
+        format!("{}#[serde(rename = \"@{}\")]\n", indent, field_name)
     }
 }
 
-pub fn yaserde_for_element(
+pub fn serde_for_element(
     name: &str,
     target_namespace: Option<&Namespace>,
     indent: &str,
+    modifiers: &[TypeModifier],
 ) -> String {
-    let (prefix, field_name) = if let Some(index) = name.find(':') {
+    let (_prefix, field_name) = if let Some(index) = name.find(':') {
         (Some(&name[0..index]), &name[index + 1..])
     } else {
         (target_namespace.and_then(|ns| ns.name()), name)
     };
 
-    match prefix {
-        Some(p) => {
-            format!("{}#[yaserde(prefix = \"{}\", rename = \"{}\")]\n", indent, p, field_name)
-        }
-        None => format!("{}#[yaserde(rename = \"{}\")]\n", indent, field_name),
+    if modifiers.contains(&TypeModifier::Array) || modifiers.contains(&TypeModifier::Recursive) {
+        format!(
+            "{}#[serde(rename = \"{}\", default, skip_serializing_if = \"Vec::is_empty\")]\n",
+            indent, field_name
+        )
+    } else if modifiers.contains(&TypeModifier::Option) {
+        format!(
+            "{}#[serde(rename = \"{}\", default, skip_serializing_if = \"Option::is_none\")]\n",
+            indent, field_name
+        )
+    } else {
+        format!("{}#[serde(rename = \"{}\")]\n", indent, field_name)
     }
 }
 
-pub fn yaserde_for_flatten_element(indent: &str) -> String {
-    format!("{}#[yaserde(flatten)]\n", indent)
+pub fn serde_for_flatten_element(indent: &str) -> String {
+    format!("{}#[serde(flatten)]\n", indent)
 }
 
 #[cfg(test)]

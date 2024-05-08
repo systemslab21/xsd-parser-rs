@@ -8,7 +8,7 @@ use crate::{
 pub trait StructGenerator {
     fn generate(&self, entity: &Struct, gen: &Generator) -> String {
         format!(
-            "{comment}{macros}pub struct {name} {{{fields}}}\n\n{validation}\n{subtypes}\n",
+            "{comment}{macros}pub struct {name} {{{fields}}}\n{validation}\n{subtypes}\n\n",
             comment = self.format_comment(entity, gen),
             macros = self.macros(entity, gen),
             name = self.get_type_name(entity, gen),
@@ -78,26 +78,14 @@ pub trait StructGenerator {
         gen.base().format_type_name(entity.name.as_str(), gen).into()
     }
 
-    fn macros(&self, _entity: &Struct, gen: &Generator) -> Cow<'static, str> {
-        let derives = "#[derive(Default, PartialEq, Debug, YaSerialize, YaDeserialize)]\n";
-        let tns = gen.target_ns.borrow();
-        match tns.as_ref() {
-            Some(tn) => match tn.name() {
-                Some(name) => format!(
-                    "{derives}#[yaserde(prefix = \"{prefix}\", namespace = \"{prefix}: {uri}\")]\n",
-                    derives = derives,
-                    prefix = name,
-                    uri = tn.uri()
-                ),
-                None => format!(
-                    "{derives}#[yaserde(namespace = \"{uri}\")]\n",
-                    derives = derives,
-                    uri = tn.uri()
-                ),
-            },
-            None => format!("{derives}#[yaserde()]\n", derives = derives),
-        }
-        .into()
+    fn macros(&self, entity: &Struct, gen: &Generator) -> Cow<'static, str> {
+        let derives = "#[derive(Debug, PartialEq, Eq, Default, Serialize, Deserialize)]\n";
+        let rename = if self.get_type_name(entity, gen) != entity.name {
+            format!("#[serde(rename = \"{}\")]\n", entity.name).into()
+        } else {
+            Cow::Borrowed("")
+        };
+        format!("{derives}{rename}").into()
     }
 
     fn format_comment(&self, entity: &Struct, gen: &Generator) -> String {

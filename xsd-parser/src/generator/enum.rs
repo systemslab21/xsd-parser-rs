@@ -8,32 +8,18 @@ use crate::{
 pub trait EnumGenerator {
     fn generate(&self, entity: &Enum, gen: &Generator) -> String {
         let name = self.get_name(entity, gen);
-        let default_case = format!(
-            "impl Default for {name} {{\n\
-            {indent}fn default() -> {name} {{\n\
-            {indent}{indent}Self::__Unknown__(\"No valid variants\".into())\n\
-            {indent}}}\n\
-            }}",
-            name = name,
-            indent = gen.base().indent()
-        );
 
         format!(
             "{comment}{macros}\n\
             pub enum {name} {{\n\
                 {cases}\n\
-                {indent}__Unknown__({typename}),\n\
-            }}\n\n\
-            {default}\n\n\
-            {validation}\n\n\
+            }}\n\
+            {validation}\n\
             {subtypes}\n\n",
-            indent = gen.base().indent(),
             comment = self.format_comment(entity, gen),
             macros = self.macros(entity, gen),
             name = name,
             cases = self.cases(entity, gen),
-            typename = self.get_type_name(entity, gen),
-            default = default_case,
             subtypes = self.subtypes(entity, gen),
             validation = self.validation(entity, gen),
         )
@@ -62,28 +48,12 @@ pub trait EnumGenerator {
 
     fn macros(&self, entity: &Enum, gen: &Generator) -> Cow<'static, str> {
         if entity.source == EnumSource::Union {
-            return "#[derive(PartialEq, Debug, UtilsUnionSerDe)]".into();
+            return "#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]\n#[serde(untagged)]".into();
         }
 
-        let derives = "#[derive(PartialEq, Debug, YaSerialize, YaDeserialize)]";
-        let tns = gen.target_ns.borrow();
-        match tns.as_ref() {
-            Some(tn) => match tn.name() {
-                Some(name) => format!(
-                    "{derives}#[yaserde(prefix = \"{prefix}\", namespace = \"{prefix}: {uri}\")]\n",
-                    derives = derives,
-                    prefix = name,
-                    uri = tn.uri()
-                ),
-                None => format!(
-                    "{derives}#[yaserde(namespace = \"{uri}\")]\n",
-                    derives = derives,
-                    uri = tn.uri()
-                ),
-            },
-            None => format!("{derives}#[yaserde()]\n", derives = derives),
-        }
-        .into()
+        let derives = "#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]";
+        let _tns = gen.target_ns.borrow();
+        derives.into()
     }
 
     fn format_comment(&self, entity: &Enum, gen: &Generator) -> String {
