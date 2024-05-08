@@ -41,8 +41,8 @@ pub struct Generator<'input> {
 
 impl<'input> Generator<'input> {
     pub fn generate_rs_file(&self, schema: &RsFile<'input>) -> String {
-        *self.target_ns.borrow_mut() = schema.target_ns.clone();
-        *self.xsd_ns.borrow_mut() = schema.xsd_ns.clone();
+        self.target_ns.borrow_mut().clone_from(&schema.target_ns);
+        self.xsd_ns.borrow_mut().clone_from(&schema.xsd_ns);
         schema.types.iter().map(|entity| self.generate(entity)).collect()
     }
 

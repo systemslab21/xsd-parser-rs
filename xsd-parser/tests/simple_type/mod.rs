@@ -7,6 +7,7 @@ fn deserialization_works() {
 
         use xsd_macro_utils::*;
 
+        #[allow(dead_code)]
         trait Validate {
             fn validate(&self) -> Result<(), String>;
         }

@@ -145,6 +145,7 @@ mod test {
 
     #[test]
     fn test_validator_for_tuple_struct() {
+        #[allow(dead_code)]
         struct Foo(());
         impl Validate for Foo {
             fn validate(&self) -> Result<(), String> {
