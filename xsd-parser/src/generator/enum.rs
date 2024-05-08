@@ -46,10 +46,10 @@ pub trait EnumGenerator {
 
     fn macros(&self, entity: &Enum, gen: &Generator) -> Cow<'static, str> {
         if entity.source == EnumSource::Union {
-            return "#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]\n#[serde(untagged)]".into();
+            return "#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]\n#[serde(untagged)]".into();
         }
 
-        let derives = "#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]";
+        let derives = "#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]";
         let _tns = gen.target_ns.borrow();
         derives.into()
     }
