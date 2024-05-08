@@ -9,7 +9,6 @@ pub mod r#struct;
 pub mod struct_field;
 pub mod tuple_struct;
 mod utils;
-pub mod validator;
 
 use std::{borrow::Borrow, cell::RefCell};
 

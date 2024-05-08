@@ -11,5 +11,3 @@ pub struct AppSequenceType {
     #[yaserde(attribute, rename = "MessageNumber")]
     pub message_number: u32,
 }
-
-impl Validate for AppSequenceType {}

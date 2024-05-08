@@ -14,6 +14,4 @@ pub struct FooType {
     pub twice_or_more: Vec<i32>,
 }
 
-impl Validate for FooType {}
-
 // pub type Foo = FooType;

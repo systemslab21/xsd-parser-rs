@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
 use crate::{
-    generator::{validator::gen_validate_impl, Generator},
+    generator::Generator,
     parser::types::{Enum, EnumSource},
 };
 
@@ -14,14 +14,12 @@ pub trait EnumGenerator {
             pub enum {name} {{\n\
                 {cases}\n\
             }}\n\
-            {validation}\n\
             {subtypes}\n\n",
             comment = self.format_comment(entity, gen),
             macros = self.macros(entity, gen),
             name = name,
             cases = self.cases(entity, gen),
             subtypes = self.subtypes(entity, gen),
-            validation = self.validation(entity, gen),
         )
     }
 
@@ -58,11 +56,6 @@ pub trait EnumGenerator {
 
     fn format_comment(&self, entity: &Enum, gen: &Generator) -> String {
         gen.base().format_comment(entity.comment.as_deref(), 0)
-    }
-
-    fn validation(&self, entity: &Enum, gen: &Generator) -> Cow<'static, str> {
-        // Empty validation
-        Cow::Owned(gen_validate_impl(self.get_name(entity, gen).as_str(), ""))
     }
 }
 

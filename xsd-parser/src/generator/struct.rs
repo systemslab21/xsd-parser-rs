@@ -1,20 +1,16 @@
 use std::borrow::Cow;
 
-use crate::{
-    generator::{validator::gen_validate_impl, Generator},
-    parser::types::Struct,
-};
+use crate::{generator::Generator, parser::types::Struct};
 
 pub trait StructGenerator {
     fn generate(&self, entity: &Struct, gen: &Generator) -> String {
         format!(
-            "{comment}{macros}pub struct {name} {{{fields}}}\n{validation}\n{subtypes}\n\n",
+            "{comment}{macros}pub struct {name} {{{fields}}}\n{subtypes}\n\n",
             comment = self.format_comment(entity, gen),
             macros = self.macros(entity, gen),
             name = self.get_type_name(entity, gen),
             fields = self.fields(entity, gen),
             subtypes = self.subtypes(entity, gen),
-            validation = self.validation(entity, gen),
         )
     }
 
@@ -94,11 +90,6 @@ pub trait StructGenerator {
 
     fn mod_name(&self, entity: &Struct, gen: &Generator) -> String {
         gen.base().mod_name(entity.name.as_str())
-    }
-
-    fn validation(&self, entity: &Struct, gen: &Generator) -> Cow<'static, str> {
-        // Empty validation
-        Cow::Owned(gen_validate_impl(self.get_type_name(entity, gen).as_str(), ""))
     }
 }
 

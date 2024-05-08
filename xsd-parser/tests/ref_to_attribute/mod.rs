@@ -6,7 +6,6 @@ fn deserialization_works() {
         use std::str::FromStr;
 
         use xsd_macro_utils::*;
-        use xsd_parser::generator::validator::Validate;
         use yaserde_derive::{YaDeserialize, YaSerialize};
 
         include!("expected.rs");

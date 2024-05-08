@@ -7,5 +7,3 @@ pub struct FooType {
     #[yaserde(prefix = "tns", rename = "Max")]
     pub max: i32,
 }
-
-impl Validate for FooType {}

@@ -1,23 +1,16 @@
 use std::borrow::Cow;
 
-use crate::{
-    generator::{
-        validator::{gen_facet_validation, gen_validate_impl},
-        Generator,
-    },
-    parser::types::TupleStruct,
-};
+use crate::{generator::Generator, parser::types::TupleStruct};
 
 pub trait TupleStructGenerator {
     fn generate(&self, entity: &TupleStruct, gen: &Generator) -> String {
         format!(
-            "{comment}{macros}pub struct {name} (pub {typename});\n{validation}\n{subtypes}\n\n",
+            "{comment}{macros}pub struct {name} (pub {typename});\n{subtypes}\n\n",
             comment = self.format_comment(entity, gen),
             name = self.get_name(entity, gen),
             macros = self.macros(entity, gen),
             typename = self.get_type_name(entity, gen),
             subtypes = self.subtypes(entity, gen),
-            validation = self.validation(entity, gen),
         )
     }
 
@@ -45,15 +38,6 @@ pub trait TupleStructGenerator {
 
     fn format_comment(&self, entity: &TupleStruct, gen: &Generator) -> String {
         gen.base().format_comment(entity.comment.as_deref(), 0)
-    }
-
-    fn validation(&self, entity: &TupleStruct, gen: &Generator) -> Cow<'static, str> {
-        let body = entity
-            .facets
-            .iter()
-            .map(|f| gen_facet_validation(&f.facet_type, "0", &self.get_type_name(entity, gen)))
-            .fold(String::new(), |x, y| (x + &y));
-        Cow::Owned(gen_validate_impl(self.get_name(entity, gen).as_str(), body.as_str()))
     }
 }
 

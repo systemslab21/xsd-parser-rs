@@ -10,5 +10,3 @@ impl Default for FooType {
         Self::__Unknown__("No valid variants".into())
     }
 }
-
-impl Validate for FooType {}
