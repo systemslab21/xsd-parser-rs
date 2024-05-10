@@ -38,24 +38,21 @@ impl Struct {
     pub fn extend_base(&self, types: &HashMap<&String, &Self>) {
         self.fields.borrow_mut().iter_mut().for_each(|f| f.extend_base(types));
 
-        let mut fields = self
-            .fields
-            .borrow()
-            .iter()
-            .filter(|f| f.name.as_str() == tag::BASE)
-            .flat_map(|f| {
-                let key = f.type_name.split(':').last().unwrap().to_string();
-                types.get(&key).map(|s| s.fields.borrow().clone()).unwrap_or_default()
-            })
-            .filter(|f| {
-                //TODO: remove this workaround for fields names clash
-                !self.fields.borrow().iter().any(|field| field.name == f.name)
-            })
-            .collect::<Vec<StructField>>();
+        while self.fields.borrow().iter().any(|field| field.name == tag::BASE) {
+            let mut fields = self
+                .fields
+                .borrow()
+                .iter()
+                .filter(|f| f.name.as_str() == tag::BASE)
+                .flat_map(|f| {
+                    let key = f.type_name.split(':').last().unwrap().to_string();
+                    types.get(&key).map(|s| s.fields.borrow().clone()).unwrap_or_default()
+                })
+                .collect::<Vec<StructField>>();
 
-        self.fields.borrow_mut().append(&mut fields);
-
-        self.fields.borrow_mut().retain(|field| field.name.as_str() != tag::BASE);
+            self.fields.borrow_mut().retain(|field| field.name.as_str() != tag::BASE);
+            self.fields.borrow_mut().append(&mut fields);
+        }
 
         for subtype in &self.subtypes {
             if let RsEntity::Struct(s) = subtype {
