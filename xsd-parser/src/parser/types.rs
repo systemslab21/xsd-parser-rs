@@ -51,7 +51,8 @@ impl Struct {
                 .collect::<Vec<StructField>>();
 
             self.fields.borrow_mut().retain(|field| field.name.as_str() != tag::BASE);
-            self.fields.borrow_mut().append(&mut fields);
+            fields.append(&mut self.fields.borrow_mut());
+            *self.fields.borrow_mut() = fields;
         }
 
         for subtype in &self.subtypes {
