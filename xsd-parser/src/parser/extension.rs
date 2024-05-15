@@ -68,6 +68,7 @@ fn complex_content_extension(node: &Node) -> RsEntity {
             n.is_element()
                 && n.xsd_type() != ElementType::Attribute
                 && AVAILABLE_CONTENT_TYPES.contains(&n.xsd_type())
+                && n.xsd_type() != ElementType::AttributeGroup
         })
         .last();
 
@@ -76,6 +77,7 @@ fn complex_content_extension(node: &Node) -> RsEntity {
         if let RsEntity::Struct(s) = &mut res {
             s.fields.borrow_mut().append(&mut fields);
             s.comment = get_documentation(node);
+            s.attribute_groups.borrow_mut().append(&mut attribute_groups_to_aliases(node));
             return res;
         }
     }
