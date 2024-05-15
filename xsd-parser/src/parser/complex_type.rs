@@ -29,6 +29,7 @@ pub fn parse_complex_type(node: &Node, parent: &Node) -> RsEntity {
     } else {
         get_parent_name(node)
     };
+    let is_abstract = node.attribute("abstract").is_some_and(|val| val == "true");
 
     let mut fields = attributes_to_fields(node);
 
@@ -46,6 +47,7 @@ pub fn parse_complex_type(node: &Node, parent: &Node) -> RsEntity {
             comment: get_documentation(node),
             subtypes: vec![],
             name: name.to_string(),
+            is_abstract,
         });
     }
     let content_node = content.unwrap();
@@ -56,6 +58,7 @@ pub fn parse_complex_type(node: &Node, parent: &Node) -> RsEntity {
             st.fields.borrow_mut().append(&mut fields);
             st.name = name.to_string();
             st.attribute_groups.borrow_mut().append(&mut attribute_groups_to_aliases(node));
+            st.is_abstract = is_abstract;
         }
         RsEntity::Enum(en) => {
             en.name = format!("{}Choice", name);
@@ -71,6 +74,7 @@ pub fn parse_complex_type(node: &Node, parent: &Node) -> RsEntity {
                 comment: get_documentation(node),
                 fields: RefCell::new(fields),
                 attribute_groups: RefCell::new(attribute_groups_to_aliases(node)),
+                is_abstract: false,
             })];
         }
         _ => (),

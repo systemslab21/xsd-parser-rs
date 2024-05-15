@@ -21,6 +21,7 @@ pub struct Struct {
     pub fields: RefCell<Vec<StructField>>,
     pub attribute_groups: RefCell<Vec<Alias>>,
     pub subtypes: Vec<RsEntity>,
+    pub is_abstract: bool,
 }
 
 impl Struct {

@@ -4,6 +4,10 @@ use crate::{generator::Generator, parser::types::Struct};
 
 pub trait StructGenerator {
     fn generate(&self, entity: &Struct, gen: &Generator) -> String {
+        if entity.is_abstract {
+            return "".to_owned();
+        }
+
         format!(
             "{comment}{macros}pub struct {name} {{{fields}}}\n{subtypes}\n\n",
             comment = self.format_comment(entity, gen),

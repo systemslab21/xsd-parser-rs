@@ -46,6 +46,7 @@ fn simple_content_extension(node: &Node) -> RsEntity {
         comment: get_documentation(node),
         fields: RefCell::new(fields),
         attribute_groups: RefCell::new(attribute_groups_to_aliases(node)),
+        is_abstract: false,
     })
 }
 

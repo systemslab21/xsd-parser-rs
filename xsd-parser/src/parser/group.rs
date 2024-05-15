@@ -38,6 +38,7 @@ pub fn parse_group(node: &Node, parent: &Node) -> RsEntity {
                 comment: get_documentation(node),
                 subtypes: vec![],
                 name: name.to_string(),
+                is_abstract: true,
             });
         }
         let content_node = content.unwrap();
@@ -47,6 +48,7 @@ pub fn parse_group(node: &Node, parent: &Node) -> RsEntity {
             RsEntity::Struct(st) => {
                 st.fields.borrow_mut().append(&mut fields);
                 st.name = name.to_string();
+                st.is_abstract = true;
             }
             RsEntity::Enum(en) => {
                 en.name = format!("{}Choice", name);
@@ -62,6 +64,7 @@ pub fn parse_group(node: &Node, parent: &Node) -> RsEntity {
                     comment: get_documentation(node),
                     fields: RefCell::new(fields),
                     attribute_groups: RefCell::new(attribute_groups_to_aliases(node)),
+                    is_abstract: false,
                 })];
             }
             _ => (),
