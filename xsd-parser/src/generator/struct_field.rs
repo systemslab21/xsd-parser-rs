@@ -40,7 +40,7 @@ pub trait StructFieldGenerator {
 
     fn macros(&self, entity: &StructField, gen: &Generator) -> String {
         let indent = gen.base().indent();
-        match entity.source {
+        let serde = match entity.source {
             StructFieldSource::Choice => serde_for_flatten_element(indent.as_str()),
             StructFieldSource::Attribute => {
                 serde_for_attribute(entity.name.as_str(), indent.as_str(), &entity.type_modifiers)
@@ -52,7 +52,20 @@ pub trait StructFieldGenerator {
                 &entity.type_modifiers,
             ),
             _ => "".into(),
-        }
+        };
+        let builder = match entity.source {
+            StructFieldSource::Attribute | StructFieldSource::Element => {
+                if entity.type_modifiers.contains(&TypeModifier::Option) {
+                    format!("{indent}#[builder(default, setter(into))]\n")
+                } else if entity.type_modifiers.contains(&TypeModifier::Array) {
+                    format!("{indent}#[builder(setter(into))]\n")
+                } else {
+                    "".into()
+                }
+            }
+            _ => "".into(),
+        };
+        format!("{serde}{builder}")
     }
 }
 

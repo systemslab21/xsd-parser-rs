@@ -42,7 +42,7 @@ fn parse_case_of_choice(element: &Node) -> RsEntity {
             value: String::default(),
             type_name: Some(ref_attr.to_string()),
             comment: get_documentation(element),
-            type_modifiers: vec![element_modifier(element)],
+            type_modifiers: element_modifiers(element),
             source: EnumSource::Choice,
         });
     }
@@ -55,7 +55,7 @@ fn parse_case_of_choice(element: &Node) -> RsEntity {
             value: String::default(),
             type_name: Some(element.attr_type().unwrap().to_string()),
             comment: get_documentation(element),
-            type_modifiers: vec![element_modifier(element)],
+            type_modifiers: element_modifiers(element),
             source: EnumSource::Choice,
         });
     }
@@ -65,7 +65,7 @@ fn parse_case_of_choice(element: &Node) -> RsEntity {
         value: String::default(),
         type_name: None,
         comment: get_documentation(element),
-        type_modifiers: vec![element_modifier(element)],
+        type_modifiers: element_modifiers(element),
         source: EnumSource::Choice,
     })
 }
@@ -85,7 +85,7 @@ fn parse_field_of_sequence(node: &Node, _: &Node) -> RsEntity {
             type_name,
             comment: get_documentation(node),
             source: StructFieldSource::Element,
-            type_modifiers: vec![element_modifier(node)],
+            type_modifiers: element_modifiers(node),
             ..Default::default()
         });
     }
@@ -106,7 +106,7 @@ fn parse_field_of_sequence(node: &Node, _: &Node) -> RsEntity {
         comment: get_documentation(node),
         subtypes: vec![field_type],
         source: StructFieldSource::Element,
-        type_modifiers: vec![element_modifier(node)],
+        type_modifiers: element_modifiers(node),
     })
 }
 
@@ -139,33 +139,33 @@ fn parse_global_element(node: &Node) -> RsEntity {
     })
 }
 
-pub fn element_modifier(node: &Node) -> TypeModifier {
+pub fn element_modifiers(node: &Node) -> Vec<TypeModifier> {
     let min = min_occurs(node);
     let max = max_occurs(node);
     match min {
         0 => match max {
-            MaxOccurs::None => TypeModifier::Option,
-            MaxOccurs::Unbounded => TypeModifier::Array,
+            MaxOccurs::None => vec![TypeModifier::Option],
+            MaxOccurs::Unbounded => vec![TypeModifier::Option, TypeModifier::Array],
             MaxOccurs::Bounded(val) => {
                 if val > 1 {
-                    TypeModifier::Array
+                    vec![TypeModifier::Option, TypeModifier::Array]
                 } else {
-                    TypeModifier::Option
+                    vec![TypeModifier::Option]
                 }
             }
         },
         1 => match max {
-            MaxOccurs::None => TypeModifier::None,
-            MaxOccurs::Unbounded => TypeModifier::Array,
+            MaxOccurs::None => vec![TypeModifier::None],
+            MaxOccurs::Unbounded => vec![TypeModifier::Array],
             MaxOccurs::Bounded(val) => {
                 if val > 1 {
-                    TypeModifier::Array
+                    vec![TypeModifier::Array]
                 } else {
-                    TypeModifier::None
+                    vec![TypeModifier::None]
                 }
             }
         },
-        _ => TypeModifier::Array,
+        _ => vec![TypeModifier::Array],
     }
 }
 

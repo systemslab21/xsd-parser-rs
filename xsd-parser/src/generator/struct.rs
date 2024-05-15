@@ -75,7 +75,7 @@ pub trait StructGenerator {
     }
 
     fn macros(&self, entity: &Struct, gen: &Generator) -> Cow<'static, str> {
-        let derives = "#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]\n";
+        let derives = "#[derive(Debug, PartialEq, Clone, Serialize, Deserialize, TypedBuilder)]\n#[builder(doc)]\n";
         let rename = if self.get_type_name(entity, gen) != entity.name {
             format!("#[serde(rename = \"{}\")]\n", entity.name).into()
         } else {
